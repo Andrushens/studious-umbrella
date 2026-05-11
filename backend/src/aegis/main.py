@@ -15,12 +15,14 @@ from aegis.clients.etherscan import EtherscanClient
 from aegis.config import Settings, get_settings
 from aegis.db import build_engine, build_sessionmaker, init_db
 from aegis.logging import configure_logging
+from aegis.observability import init_sentry
 from aegis.scheduler import build_scheduler
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
     configure_logging(settings.log_level, settings.log_format)
+    init_sentry(settings)
 
     app = FastAPI(title="Aegis Backend", version="0.1.0", lifespan=_lifespan)
     app.state.settings = settings
