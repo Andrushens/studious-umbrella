@@ -13,7 +13,7 @@ def configure_logging(level: str = "INFO", fmt: str = "console") -> None:
     `fmt` is "console" (dev-friendly colored) or "json" (machine-readable).
     """
     timestamper = structlog.processors.TimeStamper(fmt="iso", utc=True)
-    shared_processors: list = [
+    shared_processors: list[structlog.types.Processor] = [
         structlog.contextvars.merge_contextvars,
         structlog.stdlib.add_log_level,
         structlog.stdlib.add_logger_name,
@@ -25,6 +25,7 @@ def configure_logging(level: str = "INFO", fmt: str = "console") -> None:
     else:
         renderer = structlog.dev.ConsoleRenderer(colors=sys.stderr.isatty())
 
+    structlog.reset_defaults()
     structlog.configure(
         processors=shared_processors
         + [structlog.stdlib.ProcessorFormatter.wrap_for_formatter],
