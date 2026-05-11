@@ -4,10 +4,20 @@ from __future__ import annotations
 from fastapi import APIRouter, status
 from sqlalchemy import select
 
-from aegis.api.deps import SessionDep
-from aegis.errors import NotFoundError
-from aegis.models import Device, WatchedAddress
-from aegis.schemas import AddressCreate, AddressList, AddressOut, DeviceCreate, DeviceOut
+from aegis.api.deps import AlchemyDep, EtherscanDep, SessionDep, SettingsDep
+from aegis.errors import ConfigError, NotFoundError
+from aegis.models import Approval, Device, WatchedAddress
+from aegis.scanner import scan_wallet
+from aegis.schemas import (
+    AddressCreate,
+    AddressList,
+    AddressOut,
+    ApprovalList,
+    ApprovalOut,
+    DeviceCreate,
+    DeviceOut,
+    TokenOut,
+)
 
 router = APIRouter()
 
@@ -98,3 +108,45 @@ async def delete_address(
         )
     await session.delete(addr)
     await session.commit()
+
+
+@router.post("/devices/{device_id}/scan", response_model=ApprovalList)
+async def scan_device(
+    device_id: str,
+    session: SessionDep,
+    settings: SettingsDep,
+    etherscan: EtherscanDep,
+    alchemy: AlchemyDep,
+) -> ApprovalList:
+    if not settings.etherscan_api_key:
+        raise ConfigError("ETHERSCAN_API_KEY missing")
+    if not settings.alchemy_api_key:
+        raise ConfigError("ALCHEMY_API_KEY missing")
+
+    device = await session.get(Device, device_id)
+    if device is None:
+        raise NotFoundError(f"Device {device_id!r} not found")
+
+    stmt = select(WatchedAddress).where(WatchedAddress.device_id == device_id)
+    addresses = (await session.execute(stmt)).scalars().all()
+
+    all_approvals: list[Approval] = []
+    for addr in addresses:
+        result = await scan_wallet(session, addr, etherscan, alchemy)
+        all_approvals.extend(result)
+
+    payload: list[ApprovalOut] = []
+    for ap in all_approvals:
+        await session.refresh(ap, attribute_names=["token"])
+        payload.append(
+            ApprovalOut(
+                token=TokenOut.model_validate(ap.token),
+                spender=ap.spender,
+                amount=ap.amount,
+                block_number=ap.block_number,
+                tx_hash=ap.tx_hash,
+                first_seen_at=ap.first_seen_at,
+                last_seen_at=ap.last_seen_at,
+            )
+        )
+    return ApprovalList(approvals=payload)
