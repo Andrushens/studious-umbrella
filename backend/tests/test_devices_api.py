@@ -31,7 +31,7 @@ async def test_create_device_invalid_tier_returns_422(client):
     assert resp.json()["error"]["code"] == "validation_error"
 
 
-async def test_create_device_upsert_preserves_created_at(client, db_session):
+async def test_create_device_upsert_preserves_created_at(client):
     first = await client.post("/v1/devices", json={"device_id": "dev-4"})
     created_first = first.json()["created_at"]
 
@@ -44,3 +44,15 @@ async def test_create_device_upsert_preserves_created_at(client, db_session):
     assert body["tier"] == "pro"
     assert body["push_token"] == "t2"
     assert body["updated_at"] >= created_first
+
+
+async def test_upsert_without_tier_does_not_downgrade_pro_to_free(client):
+    """Token-only update must preserve the existing tier."""
+    await client.post("/v1/devices", json={"device_id": "dev-pro", "tier": "pro"})
+    resp = await client.post(
+        "/v1/devices", json={"device_id": "dev-pro", "push_token": "new-tok"}
+    )
+    assert resp.status_code == 201
+    body = resp.json()
+    assert body["tier"] == "pro"  # preserved, NOT downgraded
+    assert body["push_token"] == "new-tok"

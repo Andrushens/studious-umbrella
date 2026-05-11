@@ -24,7 +24,7 @@ EthAddress = Annotated[str, BeforeValidator(_validate_eth_address)]
 class DeviceCreate(BaseModel):
     device_id: str
     push_token: str | None = None
-    tier: Literal["free", "pro"] = "free"
+    tier: Literal["free", "pro"] | None = None
 
 
 class DeviceOut(BaseModel):

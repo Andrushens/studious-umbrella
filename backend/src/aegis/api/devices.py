@@ -16,12 +16,17 @@ router = APIRouter()
 async def create_device(body: DeviceCreate, session: SessionDep) -> Device:
     existing = await session.get(Device, body.device_id)
     if existing is None:
-        device = Device(id=body.device_id, push_token=body.push_token, tier=body.tier)
+        device = Device(
+            id=body.device_id,
+            push_token=body.push_token,
+            tier=body.tier or "free",
+        )
         session.add(device)
     else:
         if body.push_token is not None:
             existing.push_token = body.push_token
-        existing.tier = body.tier
+        if body.tier is not None:
+            existing.tier = body.tier
         device = existing
     await session.commit()
     await session.refresh(device)

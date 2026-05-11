@@ -37,7 +37,7 @@ def test_device_create_defaults():
     d = DeviceCreate(device_id="abc")
     assert d.device_id == "abc"
     assert d.push_token is None
-    assert d.tier == "free"
+    assert d.tier is None  # tier is optional; persistence layer defaults to "free"
 
 
 def test_device_create_tier_validation():
