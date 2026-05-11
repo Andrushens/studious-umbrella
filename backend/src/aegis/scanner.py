@@ -6,6 +6,7 @@ import weakref
 from collections.abc import Iterable
 from datetime import UTC, datetime
 
+import structlog
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -33,19 +34,32 @@ async def scan_wallet(
     etherscan: EtherscanClient,
     alchemy: AlchemyClient,
 ) -> list[Approval]:
-    """Scan a single watched address. Returns the current Approval rows for it."""
-    async with _lock_for(watched.device_id, watched.address, watched.chain):
-        events = await etherscan.get_approval_logs(watched.address)
-        latest_by_pair = _reduce_latest(events)
-        token_addrs = {ev.token for ev in latest_by_pair.values()}
-        tokens_by_addr = await _ensure_tokens(
-            session, watched.chain, token_addrs, alchemy
-        )
-        approvals = await _upsert_approvals(
-            session, watched, latest_by_pair, tokens_by_addr
-        )
-        await session.commit()
-        return approvals
+    """Scan a single watched address. Returns the current Approval rows for it.
+
+    Callers retain ownership of the session; if scan_wallet raises, the
+    caller's session context manager handles rollback on scope exit.
+    All Approval rows in one scan share a single `last_seen_at` timestamp.
+    """
+    log = structlog.get_logger("aegis.scanner")
+    with structlog.contextvars.bound_contextvars(
+        device_id=watched.device_id,
+        address=watched.address,
+        chain=watched.chain,
+    ):
+        async with _lock_for(watched.device_id, watched.address, watched.chain):
+            log.info("scan_start")
+            events = await etherscan.get_approval_logs(watched.address)
+            latest_by_pair = _reduce_latest(events)
+            token_addrs = {ev.token for ev in latest_by_pair.values()}
+            tokens_by_addr = await _ensure_tokens(
+                session, watched.chain, token_addrs, alchemy
+            )
+            approvals = await _upsert_approvals(
+                session, watched, latest_by_pair, tokens_by_addr
+            )
+            await session.commit()
+            log.info("scan_complete", approval_count=len(approvals))
+            return approvals
 
 
 def _reduce_latest(

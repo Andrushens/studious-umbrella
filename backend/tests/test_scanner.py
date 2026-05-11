@@ -124,3 +124,20 @@ async def test_scan_wallet_serializes_overlapping_for_same_wallet(db_session: As
     finish.set()
     await asyncio.gather(task1, task2)
     assert etherscan.get_approval_logs.call_count == 2
+
+
+async def test_scan_wallet_with_no_events_returns_empty(db_session: AsyncSession):
+    """No Approval events for the wallet → no DB rows, Alchemy never called."""
+    watched = await _seed_watched(db_session)
+    etherscan = AsyncMock()
+    etherscan.get_approval_logs.return_value = []
+    alchemy = AsyncMock()
+    alchemy.get_erc20_metadata.side_effect = AssertionError("should not be called")
+
+    approvals = await scan_wallet(db_session, watched, etherscan, alchemy)
+
+    assert approvals == []
+    rows = (await db_session.execute(select(Approval))).scalars().all()
+    assert rows == []
+    tokens = (await db_session.execute(select(Token))).scalars().all()
+    assert tokens == []
