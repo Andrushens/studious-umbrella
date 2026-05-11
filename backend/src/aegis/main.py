@@ -48,10 +48,20 @@ async def _lifespan(app: FastAPI):
     app.state.etherscan = etherscan
     app.state.alchemy = alchemy
 
+    from aegis.scheduler import build_scheduler
+
+    scheduler = None
+    if settings.scheduler_enabled:
+        scheduler = build_scheduler(settings, sessionmaker, etherscan, alchemy)
+        scheduler.start()
+    app.state.scheduler = scheduler
+
     structlog.get_logger("aegis").info("startup_complete", env=settings.env)
     try:
         yield
     finally:
+        if scheduler is not None:
+            scheduler.shutdown(wait=False)
         await http.aclose()
         await engine.dispose()
 
