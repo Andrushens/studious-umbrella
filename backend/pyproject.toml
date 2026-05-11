@@ -15,6 +15,7 @@ dependencies = [
     "sentry-sdk[fastapi]>=1.45",
     "tenacity>=8.2",
     "eth-utils>=4.1",
+    "eth-hash[pycryptodome]>=0.5",
 ]
 
 [project.optional-dependencies]
