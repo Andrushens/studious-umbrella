@@ -38,11 +38,17 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(RequestValidationError)
     async def _validation(_: Request, exc: RequestValidationError):
+        # Pydantic v2 error dicts may contain non-serializable objects in
+        # the `ctx` field (e.g. the original ValueError). Strip those keys.
+        safe_errors = [
+            {k: v for k, v in err.items() if k not in ("ctx", "url")}
+            for err in exc.errors()
+        ]
         return _err(
             422,
             "validation_error",
             "Request validation failed",
-            details={"errors": exc.errors()},
+            details={"errors": safe_errors},
         )
 
     @app.exception_handler(AegisError)
