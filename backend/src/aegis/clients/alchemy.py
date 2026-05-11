@@ -46,12 +46,18 @@ class AlchemyClient:
 
     async def eth_block_number(self) -> int:
         result = await self._rpc("eth_blockNumber", [])
-        assert isinstance(result, str)
+        if not isinstance(result, str):
+            raise AlchemyError(
+                f"eth_blockNumber returned non-string result: {type(result).__name__}"
+            )
         return int(result, 16)
 
     async def eth_call(self, to: str, data: str, block: str = "latest") -> str:
         result = await self._rpc("eth_call", [{"to": to, "data": data}, block])
-        assert isinstance(result, str)
+        if not isinstance(result, str):
+            raise AlchemyError(
+                f"eth_call returned non-string result: {type(result).__name__}"
+            )
         return result
 
     async def get_erc20_metadata(self, token_address: str) -> TokenMetadata:

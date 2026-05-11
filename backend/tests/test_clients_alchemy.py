@@ -79,3 +79,28 @@ async def test_get_erc20_metadata_falls_back_on_revert(httpx_mock: HTTPXMock):
     meta = await c.get_erc20_metadata(USDC)
     assert meta.symbol is None
     assert meta.decimals is None
+
+
+async def test_get_erc20_metadata_decodes_legacy_bytes32_symbol(httpx_mock: HTTPXMock):
+    """MKR-style tokens return symbol as bytes32 (right-padded with zeros) instead of ABI string."""
+    # "MKR" as bytes32: 0x4d4b52 (3 bytes) right-padded to 32 bytes
+    mkr_bytes32 = (
+        "0x4d4b520000000000000000000000000000000000000000000000000000000000"
+    )
+    httpx_mock.add_response(
+        url=ALCHEMY_URL_RE,
+        json={"jsonrpc": "2.0", "id": 1, "result": mkr_bytes32},
+    )
+    # decimals call returns standard uint8
+    httpx_mock.add_response(
+        url=ALCHEMY_URL_RE,
+        json={
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": "0x0000000000000000000000000000000000000000000000000000000000000012",
+        },
+    )
+    c = _client()
+    meta = await c.get_erc20_metadata("0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2")  # MKR
+    assert meta.symbol == "MKR"
+    assert meta.decimals == 18
