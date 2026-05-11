@@ -105,6 +105,19 @@ async def test_get_approval_logs_other_error(httpx_mock: HTTPXMock):
         await es.get_approval_logs(OWNER)
 
 
+async def test_get_approval_logs_retries_on_transport_error(httpx_mock: HTTPXMock):
+    """One ConnectError then a success → retry decorator fires and returns the result."""
+    httpx_mock.add_exception(httpx.ConnectError("boom"))
+    httpx_mock.add_response(
+        url=_BASE_URL_RE,
+        json={"status": "1", "message": "OK", "result": []},
+    )
+    es = _client()
+    events = await es.get_approval_logs(OWNER)
+    assert events == []
+    assert len(httpx_mock.get_requests()) == 2
+
+
 def test_approval_event_is_frozen_dataclass():
     ev = ApprovalEvent(
         token="0xa", spender="0xb", amount="0", block_number=1, tx_hash="0xtx", log_index=0

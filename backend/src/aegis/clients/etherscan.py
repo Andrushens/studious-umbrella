@@ -86,11 +86,14 @@ class EtherscanClient:
 
     @staticmethod
     def _parse_log(log: dict) -> ApprovalEvent:
-        topics = log["topics"]
-        spender_topic = topics[2]
-        spender = "0x" + spender_topic[-40:]
-        data = log["data"]
-        amount_int = int(data, 16) if data and data != "0x" else 0
+        topics = log.get("topics") or []
+        if len(topics) < 3:
+            raise EtherscanError(
+                f"Malformed Approval log: expected 3 topics, got {len(topics)}: {log!r}"
+            )
+        spender = "0x" + topics[2][-40:]
+        data = log.get("data") or "0x"
+        amount_int = int(data, 16) if data != "0x" else 0
         return ApprovalEvent(
             token=normalize_address(log["address"]),
             spender=normalize_address(spender),
