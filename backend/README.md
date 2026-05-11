@@ -7,7 +7,7 @@ Week 1 scope: Ethereum mainnet, Etherscan + Alchemy.
 
 ```bash
 cd backend
-uv sync
+uv sync --all-extras
 cp .env.example .env
 ```
 
