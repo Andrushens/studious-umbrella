@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 import structlog
 from fastapi import FastAPI, Request
 
-from aegis.api import healthz
+from aegis.api import devices, healthz
 from aegis.api.errors import register_exception_handlers
 from aegis.clients.alchemy import AlchemyClient
 from aegis.clients.base import build_http_client
@@ -26,6 +26,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     register_exception_handlers(app)
     _register_request_id(app)
     app.include_router(healthz.router, prefix="/v1")
+    app.include_router(devices.router, prefix="/v1")
     return app
 
 
