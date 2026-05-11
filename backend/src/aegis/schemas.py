@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, BeforeValidator, ConfigDict
 
@@ -87,7 +87,7 @@ class ApprovalList(BaseModel):
 class ErrorBody(BaseModel):
     code: str
     message: str
-    details: dict | None = None
+    details: dict[str, Any] | None = None
 
 
 class ErrorResponse(BaseModel):
