@@ -48,3 +48,20 @@ def test_pad_address_to_topic_produces_32_bytes():
     topic = pad_address_to_topic(VITALIK)
     assert topic == "0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045"
     assert len(topic) == 66  # "0x" + 64 hex chars
+
+
+def test_normalize_address_rejects_bare_hex_no_prefix():
+    # 40 hex chars without "0x" — eth_utils.is_address returns True, but we require the prefix.
+    with pytest.raises(InvalidAddressError):
+        normalize_address("d8dA6BF26964aF9D7eEd9e03E53415D37aA96045")
+
+
+def test_normalize_address_rejects_uppercase_prefix():
+    # "0X" instead of "0x"
+    with pytest.raises(InvalidAddressError):
+        normalize_address("0Xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045")
+
+
+def test_pad_address_to_topic_propagates_invalid_address():
+    with pytest.raises(InvalidAddressError):
+        pad_address_to_topic("not an address")

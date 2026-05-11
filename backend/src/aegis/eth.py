@@ -13,7 +13,11 @@ APPROVAL_TOPIC = "0x" + keccak(text="Approval(address,address,uint256)").hex()
 
 def normalize_address(value: object) -> str:
     """Return lowercase 0x-prefixed address; raise InvalidAddressError on bad input."""
-    if not isinstance(value, str) or not is_address(value):
+    if (
+        not isinstance(value, str)
+        or not value.startswith("0x")
+        or not is_address(value)
+    ):
         raise InvalidAddressError(f"Not a valid Ethereum address: {value!r}")
     return value.lower()
 
