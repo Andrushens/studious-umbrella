@@ -4,12 +4,13 @@ from __future__ import annotations
 from unittest.mock import AsyncMock
 
 import pytest_asyncio
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from aegis.clients.alchemy import TokenMetadata
 from aegis.clients.etherscan import ApprovalEvent
 from aegis.config import Settings
-from aegis.models import Device, WatchedAddress
+from aegis.models import Approval, Device, WatchedAddress
 from aegis.scheduler import build_scheduler, scan_all_watched_addresses
 
 
@@ -74,3 +75,10 @@ async def test_scan_all_watched_addresses_swallows_per_wallet_errors(
 
     # Should not raise — failures logged + isolated per address
     await scan_all_watched_addresses(sessionmaker_fixture, etherscan, alchemy, concurrency=2)
+
+    # Healthy wallet (0xb) should have persisted its Approval.
+    async with sessionmaker_fixture() as session:
+        result = await session.execute(select(Approval))
+        approvals = result.scalars().all()
+    spenders = {a.spender for a in approvals}
+    assert spenders == {"0xs"}  # only 0xb's approval was persisted; 0xa raised

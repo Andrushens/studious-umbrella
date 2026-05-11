@@ -15,6 +15,7 @@ from aegis.clients.etherscan import EtherscanClient
 from aegis.config import Settings, get_settings
 from aegis.db import build_engine, build_sessionmaker, init_db
 from aegis.logging import configure_logging
+from aegis.scheduler import build_scheduler
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -47,8 +48,6 @@ async def _lifespan(app: FastAPI):
     app.state.http = http
     app.state.etherscan = etherscan
     app.state.alchemy = alchemy
-
-    from aegis.scheduler import build_scheduler
 
     scheduler = None
     if settings.scheduler_enabled:
