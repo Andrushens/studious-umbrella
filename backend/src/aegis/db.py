@@ -13,7 +13,7 @@ from aegis.models import Base
 
 
 def build_engine(database_url: str) -> AsyncEngine:
-    engine = create_async_engine(database_url, future=True)
+    engine = create_async_engine(database_url)
     _enable_sqlite_pragmas(engine)
     return engine
 

@@ -101,8 +101,9 @@ class Approval(Base):
         DateTime(timezone=True), default=_utcnow, nullable=False
     )
     last_seen_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=_utcnow, nullable=False
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
     )
 
     watched_address: Mapped[WatchedAddress] = relationship(back_populates="approvals")
+    # no back_populates: Token intentionally has no Approval backref (week-1 YAGNI)
     token: Mapped[Token] = relationship()

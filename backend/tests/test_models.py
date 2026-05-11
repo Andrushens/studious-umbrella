@@ -77,19 +77,41 @@ async def test_approval_unique_constraint(db_session: AsyncSession):
     await db_session.rollback()
 
 
-async def test_cascade_delete_device_removes_addresses(db_session: AsyncSession):
+async def test_cascade_delete_device_removes_addresses_and_approvals(db_session: AsyncSession):
     db_session.add(Device(id="dev-4"))
-    db_session.add(WatchedAddress(device_id="dev-4", address="0xb", chain="ethereum"))
+    addr = WatchedAddress(device_id="dev-4", address="0xb", chain="ethereum")
+    tok = Token(chain="ethereum", address="0xtok_cascade")
+    db_session.add_all([addr, tok])
+    await db_session.flush()
+    db_session.add(
+        Approval(
+            watched_address_id=addr.id,
+            token_id=tok.id,
+            spender="0xspend",
+            amount="0",
+            block_number=1,
+            tx_hash="0xtx",
+        )
+    )
     await db_session.commit()
+
     dev = await db_session.get(Device, "dev-4")
     await db_session.delete(dev)
     await db_session.commit()
-    rows = (
+
+    addr_rows = (
         await db_session.execute(
             select(WatchedAddress).where(WatchedAddress.device_id == "dev-4")
         )
     ).scalars().all()
-    assert rows == []
+    assert addr_rows == []
+
+    approval_rows = (
+        await db_session.execute(
+            select(Approval).where(Approval.watched_address_id == addr.id)
+        )
+    ).scalars().all()
+    assert approval_rows == []
 
 
 async def test_wal_pragma_is_enabled(engine):
