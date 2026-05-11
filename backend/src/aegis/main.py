@@ -22,7 +22,6 @@ from aegis.scheduler import build_scheduler
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
     configure_logging(settings.log_level, settings.log_format)
-    init_sentry(settings)
 
     app = FastAPI(title="Aegis Backend", version="0.1.0", lifespan=_lifespan)
     app.state.settings = settings
@@ -36,6 +35,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 @asynccontextmanager
 async def _lifespan(app: FastAPI):
     settings: Settings = app.state.settings
+
+    init_sentry(settings)
 
     engine = build_engine(settings.database_url)
     await init_db(engine)

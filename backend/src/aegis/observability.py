@@ -10,10 +10,11 @@ from aegis.config import Settings
 
 
 def init_sentry(settings: Settings) -> None:
-    if not settings.sentry_dsn:
+    dsn = settings.sentry_dsn.strip()
+    if not dsn:
         return
     sentry_sdk.init(
-        dsn=settings.sentry_dsn,
+        dsn=dsn,
         environment=settings.env,
         traces_sample_rate=0.0,
         send_default_pii=False,
