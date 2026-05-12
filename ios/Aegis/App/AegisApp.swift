@@ -26,57 +26,12 @@ struct AegisApp: App {
 
     var body: some Scene {
         WindowGroup {
-            BootstrapRootView()
+            ContentView()
                 .environmentObject(env)
                 .environmentObject(coordinator)
                 .task {
                     await coordinator.start()
                 }
-        }
-    }
-}
-
-/// Temporary root view. Real views ship in iOS Tasks 9-10.
-struct BootstrapRootView: View {
-    @EnvironmentObject private var env: AppEnvironment
-    @EnvironmentObject private var coordinator: BootstrapCoordinator
-
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 16) {
-                switch coordinator.state {
-                case .loading:
-                    ProgressView("Connecting to Aegis…")
-                case .ready(let deviceId):
-                    Image(systemName: "shield.checkered")
-                        .font(.system(size: 48))
-                        .foregroundStyle(.tint)
-                    Text("Aegis")
-                        .font(.largeTitle).bold()
-                    Text("Device registered")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    Text(deviceId)
-                        .font(.caption.monospaced())
-                        .textSelection(.enabled)
-                case .failed(let message):
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 48))
-                        .foregroundStyle(.orange)
-                    Text("Bootstrap failed")
-                        .font(.headline)
-                    Text(message)
-                        .font(.callout)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                    Button("Retry") {
-                        Task { await coordinator.start() }
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
-            }
-            .padding()
-            .navigationTitle("Aegis")
         }
     }
 }
