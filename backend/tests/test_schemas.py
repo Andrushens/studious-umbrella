@@ -74,6 +74,7 @@ def test_approval_out_round_trip_from_attributes():
     )
     fake_approval = SimpleNamespace(
         token=fake_token,
+        wallet_address="0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
         spender="0x1111111254eeb25477b68fb85ed929f73a960582",
         amount="123",
         block_number=42,
@@ -84,6 +85,7 @@ def test_approval_out_round_trip_from_attributes():
     out = ApprovalOut.model_validate(fake_approval)
     assert out.token.symbol == "USDC"
     assert out.token.decimals == 6
+    assert out.wallet_address == "0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
     assert out.spender == "0x1111111254eeb25477b68fb85ed929f73a960582"
     assert out.amount == "123"
     assert out.first_seen_at == now
