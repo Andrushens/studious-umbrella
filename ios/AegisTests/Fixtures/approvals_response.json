@@ -8,6 +8,7 @@
                 "decimals": 6,
                 "name": null
             },
+            "wallet_address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
             "spender": "0x1111111254eeb25477b68fb85ed929f73a960582",
             "amount": "0",
             "block_number": 258,
@@ -23,6 +24,7 @@
                 "decimals": 6,
                 "name": null
             },
+            "wallet_address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
             "spender": "0xc36442b4a4522e871399cd717abdd847ab11fe88",
             "amount": "100000000000000000",
             "block_number": 257,

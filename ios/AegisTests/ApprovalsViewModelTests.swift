@@ -28,10 +28,12 @@ struct ApprovalsViewModelTests {
     }
 
     private func approval(
-        symbol: String, amount: String, block: Int, spender: String = "0xs"
+        symbol: String, amount: String, block: Int, spender: String = "0xs",
+        wallet: String = "0xowner"
     ) -> ApprovalDTO {
         ApprovalDTO(
             token: token(symbol),
+            walletAddress: wallet,
             spender: spender,
             amount: amount,
             blockNumber: block,
@@ -48,7 +50,7 @@ struct ApprovalsViewModelTests {
             approval(symbol: "B", amount: "2", block: 300),
             approval(symbol: "C", amount: "3", block: 200, spender: "0xs2"),
         ]))
-        let vm = ApprovalsViewModel(api: api, deviceId: "dev")
+        let vm = ApprovalsViewModel(api: api, deviceId: "dev", wallet: "0xowner")
         await vm.scan()
         if case .loaded(let rows) = vm.state {
             #expect(rows.map(\.blockNumber) == [300, 200, 100])
@@ -61,7 +63,7 @@ struct ApprovalsViewModelTests {
     @Test func scan_failed_state_on_apierror() async {
         let api = StubAPI()
         api.scanResult = .failure(APIError.notConfigured(message: "ETHERSCAN_API_KEY missing"))
-        let vm = ApprovalsViewModel(api: api, deviceId: "dev")
+        let vm = ApprovalsViewModel(api: api, deviceId: "dev", wallet: "0xowner")
         await vm.scan()
         if case .failed(let msg) = vm.state {
             #expect(msg == "ETHERSCAN_API_KEY missing")
@@ -76,7 +78,7 @@ struct ApprovalsViewModelTests {
             approval(symbol: "USDC", amount: "100", block: 1),
             approval(symbol: "USDT", amount: ApprovalsViewModel.unlimitedAmount, block: 2, spender: "0xs2"),
         ]))
-        let vm = ApprovalsViewModel(api: api, deviceId: "dev")
+        let vm = ApprovalsViewModel(api: api, deviceId: "dev", wallet: "0xowner")
         await vm.scan()
         #expect(vm.unlimitedOnly == false)
         #expect(vm.visibleApprovals.count == 2)
@@ -88,7 +90,7 @@ struct ApprovalsViewModelTests {
             approval(symbol: "USDC", amount: "100", block: 1),
             approval(symbol: "USDT", amount: ApprovalsViewModel.unlimitedAmount, block: 2, spender: "0xs2"),
         ]))
-        let vm = ApprovalsViewModel(api: api, deviceId: "dev")
+        let vm = ApprovalsViewModel(api: api, deviceId: "dev", wallet: "0xowner")
         await vm.scan()
         vm.unlimitedOnly = true
         #expect(vm.visibleApprovals.map(\.amount) == [ApprovalsViewModel.unlimitedAmount])
@@ -100,14 +102,14 @@ struct ApprovalsViewModelTests {
             approval(symbol: "X", amount: "1", block: 1),
             approval(symbol: "Y", amount: ApprovalsViewModel.unlimitedAmount, block: 2, spender: "0xs2"),
         ]))
-        let vm = ApprovalsViewModel(api: api, deviceId: "dev")
+        let vm = ApprovalsViewModel(api: api, deviceId: "dev", wallet: "0xowner")
         await vm.scan()
         #expect(vm.hasUnlimitedExposure == true)
     }
 
     @Test func hasUnlimitedExposure_false_in_idle() async {
         let api = StubAPI()
-        let vm = ApprovalsViewModel(api: api, deviceId: "dev")
+        let vm = ApprovalsViewModel(api: api, deviceId: "dev", wallet: "0xowner")
         #expect(vm.hasUnlimitedExposure == false)
     }
 }

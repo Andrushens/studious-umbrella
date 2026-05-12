@@ -2,14 +2,13 @@ import SwiftUI
 
 struct ApprovalsView: View {
     @StateObject var viewModel: ApprovalsViewModel
-    let wallet: String
     let nickname: String?
 
     var body: some View {
         VStack(spacing: 0) {
             content
         }
-        .navigationTitle(nickname ?? truncated(wallet))
+        .navigationTitle(nickname ?? truncated(viewModel.wallet))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -70,7 +69,7 @@ struct ApprovalsView: View {
             } else {
                 Section("Approvals") {
                     ForEach(viewModel.visibleApprovals) { ap in
-                        ApprovalRowView(approval: ap, wallet: wallet)
+                        ApprovalRowView(approval: ap)
                     }
                 }
             }

@@ -160,7 +160,7 @@ struct AegisAPITests {
     @Test func scan_decodes_approval_list() async throws {
         StubURLProtocol.reset()
         let respJSON = #"""
-            {"approvals":[{"token":{"chain":"ethereum","address":"0xt","symbol":"X","decimals":18,"name":null},"spender":"0xs","amount":"1","block_number":1,"tx_hash":"0xtx","first_seen_at":"2026-05-12T10:00:00Z","last_seen_at":"2026-05-12T10:00:00Z"}]}
+            {"approvals":[{"token":{"chain":"ethereum","address":"0xt","symbol":"X","decimals":18,"name":null},"wallet_address":"0xowner","spender":"0xs","amount":"1","block_number":1,"tx_hash":"0xtx","first_seen_at":"2026-05-12T10:00:00Z","last_seen_at":"2026-05-12T10:00:00Z"}]}
             """#
         StubURLProtocol.responder = { _ in self.stub(status: 200, json: respJSON) }
         let api = makeAPI()

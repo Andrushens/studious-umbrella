@@ -49,7 +49,7 @@ struct DecodingTests {
         let data = try loadFixture("approvals_response")
         let list = try AegisDecoders.backend.decode(ApprovalList.self, from: data)
         let usdc = list.approvals[0]
-        #expect(usdc.id == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48|0x1111111254eeb25477b68fb85ed929f73a960582|0xaaaa2")
+        #expect(usdc.id == "0xd8da6bf26964af9d7eed9e03e53415d37aa96045|0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48|0x1111111254eeb25477b68fb85ed929f73a960582|0xaaaa2")
     }
 
     @Test func decodes_iso8601_with_fractional_seconds() throws {
@@ -62,6 +62,19 @@ struct DecodingTests {
         #expect(components.year == 2026)
         #expect(components.month == 5)
         #expect(components.day == 12)
+    }
+
+    @Test func decodes_iso8601_without_tz_designator() throws {
+        // Backend may sometimes emit naive timestamps; treat as UTC.
+        let naive = #"{"id":"x","push_token":null,"tier":"free","created_at":"2026-05-12T10:00:00.123456","updated_at":"2026-05-12T10:00:00"}"#
+        let device = try AegisDecoders.backend.decode(DeviceDTO.self, from: Data(naive.utf8))
+        #expect(device.id == "x")
+        // Should be parsed as UTC even without a designator.
+        let components = Calendar(identifier: .gregorian).dateComponents(
+            in: TimeZone(identifier: "UTC")!, from: device.createdAt
+        )
+        #expect(components.hour == 10)
+        #expect(components.minute == 0)
     }
 }
 

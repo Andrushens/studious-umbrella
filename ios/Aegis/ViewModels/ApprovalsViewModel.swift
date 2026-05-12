@@ -18,10 +18,13 @@ public final class ApprovalsViewModel: ObservableObject {
 
     private let api: AegisAPIClient
     private let deviceId: String
+    /// Lowercase 0x… address of the wallet this view is scoped to.
+    public let wallet: String
 
-    public init(api: AegisAPIClient, deviceId: String) {
+    public init(api: AegisAPIClient, deviceId: String, wallet: String) {
         self.api = api
         self.deviceId = deviceId
+        self.wallet = wallet.lowercased()
     }
 
     public func scan() async {
@@ -37,16 +40,17 @@ public final class ApprovalsViewModel: ObservableObject {
         }
     }
 
-    /// View-facing approval list with optional `unlimitedOnly` filter applied.
+    /// Approvals for the scoped wallet, with optional `unlimitedOnly` filter applied.
     public var visibleApprovals: [ApprovalDTO] {
         guard case .loaded(let rows) = state else { return [] }
-        guard unlimitedOnly else { return rows }
-        return rows.filter { $0.amount == Self.unlimitedAmount }
+        let scoped = rows.filter { $0.walletAddress == wallet }
+        guard unlimitedOnly else { return scoped }
+        return scoped.filter { $0.amount == Self.unlimitedAmount }
     }
 
-    /// Whether the wallet is currently exposed to at least one unlimited approval.
+    /// Whether the scoped wallet has at least one unlimited approval.
     public var hasUnlimitedExposure: Bool {
         guard case .loaded(let rows) = state else { return false }
-        return rows.contains { $0.amount == Self.unlimitedAmount }
+        return rows.contains { $0.walletAddress == wallet && $0.amount == Self.unlimitedAmount }
     }
 }

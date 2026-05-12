@@ -2,7 +2,6 @@ import SwiftUI
 
 struct ApprovalRowView: View {
     let approval: ApprovalDTO
-    let wallet: String
 
     private var amountDisplay: String {
         if approval.amount == ApprovalsViewModel.unlimitedAmount {
@@ -29,7 +28,7 @@ struct ApprovalRowView: View {
                 .font(.caption.monospaced())
                 .foregroundStyle(.secondary)
             HStack(spacing: 12) {
-                RevokeLinkButton(wallet: wallet)
+                RevokeLinkButton(wallet: approval.walletAddress)
                     .buttonStyle(.bordered)
                 Spacer()
                 Text("Block \(approval.blockNumber)")

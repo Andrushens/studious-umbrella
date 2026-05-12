@@ -93,8 +93,11 @@ struct WatchlistView: View {
             ForEach(rows) { row in
                 NavigationLink {
                     ApprovalsView(
-                        viewModel: ApprovalsViewModel(api: env.api, deviceId: deviceId),
-                        wallet: row.address,
+                        viewModel: ApprovalsViewModel(
+                            api: env.api,
+                            deviceId: deviceId,
+                            wallet: row.address
+                        ),
                         nickname: row.nickname
                     )
                 } label: {
