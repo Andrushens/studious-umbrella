@@ -1,0 +1,36 @@
+/* Aegis iOS — English strings */
+
+/* Bootstrap / errors */
+"bootstrap.connecting" = "Connecting to Aegis…";
+"bootstrap.failed.title" = "Bootstrap failed";
+"common.retry" = "Retry";
+"common.cancel" = "Cancel";
+"common.add" = "Add";
+"common.delete" = "Delete";
+"common.refresh" = "Refresh";
+
+/* Watchlist */
+"watchlist.title" = "Watchlist";
+"watchlist.empty.title" = "No wallets yet";
+"watchlist.empty.subtitle" = "Add a wallet address to watch its approvals.";
+"watchlist.add.button" = "Add wallet";
+
+/* Onboarding (add address sheet) */
+"onboarding.title" = "Add wallet";
+"onboarding.address.section" = "Wallet address";
+"onboarding.address.placeholder" = "0x…";
+"onboarding.address.invalid" = "Not a valid 0x address";
+"onboarding.nickname.section" = "Nickname (optional)";
+"onboarding.nickname.placeholder" = "e.g. Vitalik";
+
+/* Approvals */
+"approvals.scan.button" = "Scan now";
+"approvals.scanning" = "Scanning…";
+"approvals.idle.subtitle" = "Tap Scan now to fetch approvals.";
+"approvals.filter.unlimited" = "Unlimited approvals only";
+"approvals.section.header" = "Approvals";
+"approvals.empty.filtered" = "No approvals match the current filter.";
+"approvals.unlimited.label" = "UNLIMITED";
+"approvals.spender.prefix" = "Spender:";
+"approvals.block.prefix" = "Block";
+"approvals.revoke.button" = "Revoke";

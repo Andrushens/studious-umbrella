@@ -7,6 +7,11 @@ options:
   groupSortPosition: top
   generateEmptyDirectories: true
   xcodeVersion: "16.0"
+  knownRegions:
+    - en
+    - es
+    - ar
+    - Base
 
 configs:
   Debug: debug
