@@ -194,6 +194,8 @@ All address-shaped columns stored lowercase 0x-prefixed.
 | DELETE | `/v1/devices/{id}/addresses/{addr_id}` | — | 204 | |
 | POST | `/v1/devices/{id}/scan` | — | `{approvals:[]}` | Synchronous scan all addresses for device |
 
+`ApprovalOut` schema fields: `token` (TokenOut), `wallet_address` (str — the lowercase 0x address of the watched wallet that owns this approval, added for iOS grouping/filtering and Revoke deep-link wiring), `spender`, `amount`, `block_number`, `tx_hash`, `first_seen_at`, `last_seen_at`.
+
 `EthAddress` is a custom Pydantic type that runs `eth_utils.is_address(value)` for validation and normalizes to lowercase on serialize. Used in both request and response schemas.
 
 Errors normalize to:

@@ -93,3 +93,6 @@ async def test_scan_end_to_end_with_mocked_upstream(
     assert by_token[USDT_LOWER]["amount"] == "100000000000000000"
     assert by_token[USDC_LOWER]["token"]["symbol"] == "USDC"
     assert by_token[USDT_LOWER]["token"]["symbol"] == "USDT"
+    # Every approval carries the wallet address that owns it (lowercase).
+    for ap in body["approvals"]:
+        assert ap["wallet_address"] == VITALIK_MIXED.lower()

@@ -72,6 +72,7 @@ class ApprovalOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     token: TokenOut
+    wallet_address: str
     spender: str
     amount: str
     block_number: int

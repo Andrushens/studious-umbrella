@@ -119,3 +119,18 @@ async def test_wal_pragma_is_enabled(engine):
         result = await conn.exec_driver_sql("PRAGMA journal_mode;")
         mode = result.scalar()
     assert mode.lower() == "wal"
+
+
+async def test_utc_datetime_roundtrip_attaches_utc(db_session: AsyncSession):
+    """Read-after-write returns tz-aware UTC datetime (not naive)."""
+    d = Device(id="utc-test")
+    db_session.add(d)
+    await db_session.commit()
+    db_session.expire(d)  # force re-fetch from DB
+    loaded = await db_session.get(Device, "utc-test")
+    assert loaded is not None
+    assert loaded.created_at is not None
+    assert loaded.created_at.tzinfo is not None
+    # tzinfo.utcoffset must be zero for UTC
+    offset = loaded.created_at.utcoffset()
+    assert offset is not None and offset.total_seconds() == 0

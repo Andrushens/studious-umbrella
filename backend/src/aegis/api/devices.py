@@ -137,10 +137,11 @@ async def scan_device(
 
     payload: list[ApprovalOut] = []
     for ap in all_approvals:
-        await session.refresh(ap, attribute_names=["token"])
+        await session.refresh(ap, attribute_names=["token", "watched_address"])
         payload.append(
             ApprovalOut(
                 token=TokenOut.model_validate(ap.token),
+                wallet_address=ap.watched_address.address,
                 spender=ap.spender,
                 amount=ap.amount,
                 block_number=ap.block_number,
