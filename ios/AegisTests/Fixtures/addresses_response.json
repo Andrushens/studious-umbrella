@@ -1,0 +1,20 @@
+{
+    "addresses": [
+        {
+            "id": 1,
+            "device_id": "test-device-1",
+            "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+            "chain": "ethereum",
+            "nickname": "Vitalik",
+            "created_at": "2026-05-12T10:00:00Z"
+        },
+        {
+            "id": 2,
+            "device_id": "test-device-1",
+            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "chain": "ethereum",
+            "nickname": null,
+            "created_at": "2026-05-12T10:00:01Z"
+        }
+    ]
+}

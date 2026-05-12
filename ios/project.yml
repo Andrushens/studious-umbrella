@@ -52,6 +52,10 @@ targets:
     deploymentTarget: "17.0"
     sources:
       - path: AegisTests
+        excludes:
+          - "Fixtures/**"
+    resources:
+      - path: AegisTests/Fixtures
     dependencies:
       - target: Aegis
     settings:
