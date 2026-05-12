@@ -9,8 +9,9 @@ public struct ApprovalDTO: Codable, Equatable, Sendable, Identifiable {
     public let firstSeenAt: Date
     public let lastSeenAt: Date
 
-    /// Stable identity for SwiftUI ForEach: (token.address, spender) is the unique pair.
-    public var id: String { "\(token.address)|\(spender)" }
+    /// Stable identity unique even when the device-wide scan aggregates approvals
+    /// from multiple watched wallets (same token+spender pair can recur per wallet).
+    public var id: String { "\(token.address)|\(spender)|\(txHash)" }
 }
 
 public struct ApprovalList: Codable, Equatable, Sendable {

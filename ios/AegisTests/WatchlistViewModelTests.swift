@@ -153,4 +153,21 @@ struct WatchlistViewModelTests {
         }
         #expect(vm.addError == "boom")
     }
+
+    @Test func add_address_propagates_api_error_to_addError() async {
+        let api = StubAPI()
+        api.listResult = .success(WatchedAddressList(addresses: []))
+        api.addResult = .failure(APIError.validation(message: "server says no"))
+        let vm = WatchlistViewModel(api: api, deviceId: "dev")
+        await vm.refresh()
+        let result = await vm.addAddress("0xd8da6bf26964af9d7eed9e03e53415d37aa96045")
+        #expect(result == nil)
+        #expect(vm.addError == "server says no")
+        // State should not have gained a phantom row.
+        if case .loaded(let rows) = vm.state {
+            #expect(rows.isEmpty)
+        } else {
+            Issue.record("expected .loaded with empty rows")
+        }
+    }
 }

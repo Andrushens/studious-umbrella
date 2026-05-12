@@ -127,6 +127,22 @@ The repo is primarily scaffolded from a Linux dev environment which has
 no Xcode. Source files are checked in but never compiled on Linux. Run
 the build + test recipe above on a Mac before merging changes.
 
+## Known limitations
+
+- **Device-wide scan, per-wallet navigation.** `POST /v1/devices/{id}/scan`
+  aggregates approvals across every watched wallet on the device. The current
+  iOS navigation routes from a tapped wallet row into `ApprovalsView`, but the
+  data shown is device-wide. The `Revoke` deep-link on each row uses the
+  wallet address the user navigated from, which may not match the actual
+  owner of that approval when multiple wallets are watched. Resolution path:
+  backend follow-up to include `wallet_address` in the `ApprovalOut`
+  schema, then group/badge approvals by wallet in the iOS view.
+- **`armv7` placeholder in `Info.plist`.** Cosmetic only — iOS 17 hardware is
+  all `arm64`. Update before App Store submission.
+- **Signing.** `project.yml` ships no `DEVELOPMENT_TEAM`. Add yours in
+  Xcode's Signing &amp; Capabilities tab (or in xcconfig) before building to a
+  physical device.
+
 ## Out of scope (later PRD weeks)
 
 - SwiftData + CloudKit sync (week 3)

@@ -45,11 +45,11 @@ struct DecodingTests {
         #expect(usdt.amount == "100000000000000000")
     }
 
-    @Test func approval_id_is_token_address_pipe_spender() throws {
+    @Test func approval_id_includes_tx_hash() throws {
         let data = try loadFixture("approvals_response")
         let list = try AegisDecoders.backend.decode(ApprovalList.self, from: data)
         let usdc = list.approvals[0]
-        #expect(usdc.id == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48|0x1111111254eeb25477b68fb85ed929f73a960582")
+        #expect(usdc.id == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48|0x1111111254eeb25477b68fb85ed929f73a960582|0xaaaa2")
     }
 
     @Test func decodes_iso8601_with_fractional_seconds() throws {

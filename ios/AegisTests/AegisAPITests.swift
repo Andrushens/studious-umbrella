@@ -214,4 +214,21 @@ struct AegisAPITests {
             #expect(err == .unexpected(status: 418, body: "teapot"))
         }
     }
+
+    @Test func transport_failure_becomes_APIError_transport() async throws {
+        StubURLProtocol.reset()
+        StubURLProtocol.responder = nil  // forces didFailWithError(URLError.unknown)
+        let api = makeAPI()
+        do {
+            _ = try await api.healthz()
+            Issue.record("expected throw")
+        } catch let err as APIError {
+            if case .transport(let urlError) = err {
+                // .unknown is fired by our stub when no responder is set.
+                #expect(urlError.code == .unknown)
+            } else {
+                Issue.record("expected .transport, got \(err)")
+            }
+        }
+    }
 }
