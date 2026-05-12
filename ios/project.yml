@@ -1,0 +1,75 @@
+name: Aegis
+options:
+  bundleIdPrefix: app.aegis
+  deploymentTarget:
+    iOS: "17.0"
+  developmentLanguage: en
+  groupSortPosition: top
+  generateEmptyDirectories: true
+  xcodeVersion: "16.0"
+
+configs:
+  Debug: debug
+  Release: release
+
+settings:
+  base:
+    SWIFT_VERSION: "5.10"
+    SWIFT_STRICT_CONCURRENCY: complete
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    GENERATE_INFOPLIST_FILE: NO
+    INFOPLIST_FILE: Aegis/App/Info.plist
+    PRODUCT_BUNDLE_IDENTIFIER: app.aegis.ios
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    TARGETED_DEVICE_FAMILY: "1"
+  configs:
+    Debug:
+      xcconfig: Configs/Debug.xcconfig
+    Release:
+      xcconfig: Configs/Release.xcconfig
+
+targets:
+  Aegis:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Aegis
+        excludes:
+          - "App/Info.plist"
+    resources:
+      - path: Aegis/Localization
+      - path: Aegis/Resources
+    settings:
+      base:
+        PRODUCT_NAME: Aegis
+        PRODUCT_BUNDLE_IDENTIFIER: app.aegis.ios
+
+  AegisTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: AegisTests
+    dependencies:
+      - target: Aegis
+    settings:
+      base:
+        PRODUCT_NAME: AegisTests
+        PRODUCT_BUNDLE_IDENTIFIER: app.aegis.ios.tests
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_FILE: ""
+
+schemes:
+  Aegis:
+    build:
+      targets:
+        Aegis: all
+        AegisTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - AegisTests

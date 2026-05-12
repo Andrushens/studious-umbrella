@@ -1,0 +1,18 @@
+# Build
+build/
+DerivedData/
+.swiftpm/
+*.xcworkspace
+*.xcuserstate
+xcuserdata/
+
+# XcodeGen output (regenerable)
+Aegis.xcodeproj
+
+# CocoaPods / Carthage (unused but defensive)
+Pods/
+Carthage/Build/
+
+# Other
+.DS_Store
+*.log

@@ -1,0 +1,3 @@
+// Release build configuration
+API_BASE_URL = https:/$()/api.aegis.app
+ENV_NAME = production
